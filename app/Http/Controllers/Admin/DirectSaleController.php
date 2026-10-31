@@ -45,12 +45,14 @@ class DirectSaleController extends Controller
 
         $orders = $query->paginate(15)->withQueryString();
 
-        $todayOrdersQuery = Order::where('channel', OrderChannel::InStore)
+        $todaySummary = Order::where('channel', OrderChannel::InStore)
             ->where('payment_status', PaymentStatus::Paid)
-            ->whereDate('paid_at', today());
+            ->whereDate('paid_at', today())
+            ->selectRaw('COUNT(*) as total_count, COALESCE(SUM(total_amount), 0) as total_sum')
+            ->first();
 
-        $todaySalesCount = (clone $todayOrdersQuery)->count();
-        $todayRevenue = (float) (clone $todayOrdersQuery)->sum('total_amount');
+        $todaySalesCount = (int) ($todaySummary->total_count ?? 0);
+        $todayRevenue = (float) ($todaySummary->total_sum ?? 0);
 
         return view('admin.direct_sales.index', compact('orders', 'todaySalesCount', 'todayRevenue'));
     }

@@ -37,14 +37,25 @@ class ReportController extends Controller
             ->where('payment_status', PaymentStatus::Paid)
             ->whereBetween(DB::raw('DATE(COALESCE(paid_at, created_at))'), [$startDate, $endDate]);
 
-        // Metrics calculations
-        $totalRevenue = (float) (clone $paidQuery)->sum('total_amount');
-        $onlineRevenue = (float) (clone $paidQuery)->where('channel', OrderChannel::Online)->sum('total_amount');
-        $inStoreRevenue = (float) (clone $paidQuery)->where('channel', OrderChannel::InStore)->sum('total_amount');
+        // Single aggregated query for all sales metrics
+        $metrics = (clone $paidQuery)
+            ->selectRaw('
+                COALESCE(SUM(total_amount), 0) as total_revenue,
+                COALESCE(SUM(CASE WHEN channel = "online" THEN total_amount ELSE 0 END), 0) as online_revenue,
+                COALESCE(SUM(CASE WHEN channel = "in_store" THEN total_amount ELSE 0 END), 0) as in_store_revenue,
+                COUNT(id) as total_paid_orders,
+                COALESCE(SUM(CASE WHEN channel = "online" THEN 1 ELSE 0 END), 0) as online_paid_orders,
+                COALESCE(SUM(CASE WHEN channel = "in_store" THEN 1 ELSE 0 END), 0) as in_store_paid_orders
+            ')
+            ->first();
 
-        $totalPaidOrders = (int) (clone $paidQuery)->count();
-        $onlinePaidOrders = (int) (clone $paidQuery)->where('channel', OrderChannel::Online)->count();
-        $inStorePaidOrders = (int) (clone $paidQuery)->where('channel', OrderChannel::InStore)->count();
+        $totalRevenue = (float) ($metrics->total_revenue ?? 0);
+        $onlineRevenue = (float) ($metrics->online_revenue ?? 0);
+        $inStoreRevenue = (float) ($metrics->in_store_revenue ?? 0);
+
+        $totalPaidOrders = (int) ($metrics->total_paid_orders ?? 0);
+        $onlinePaidOrders = (int) ($metrics->online_paid_orders ?? 0);
+        $inStorePaidOrders = (int) ($metrics->in_store_paid_orders ?? 0);
 
         $averageOrderValue = $totalPaidOrders > 0 ? $totalRevenue / $totalPaidOrders : 0.0;
 

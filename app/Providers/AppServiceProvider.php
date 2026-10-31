@@ -30,12 +30,12 @@ class AppServiceProvider extends ServiceProvider
             $view->with('storeSetting', StoreSetting::current());
         });
 
-        View::composer(['layouts.admin', 'admin.*'], function ($view) {
+        View::composer('layouts.admin', function ($view) {
             if (auth()->check()) {
                 $view->with([
-                    'adminProcessingOrdersCount' => Order::where('order_status', OrderStatus::Processing)->count(),
-                    'adminPendingPaymentCount' => Order::where('order_status', OrderStatus::PendingPayment)->count(),
-                    'adminLowStockCount' => Product::whereRaw('(stock_gram - reserved_stock_gram) <= low_stock_threshold_gram')->count(),
+                    'adminProcessingOrdersCount' => once(fn () => Order::where('order_status', OrderStatus::Processing)->count()),
+                    'adminPendingPaymentCount' => once(fn () => Order::where('order_status', OrderStatus::PendingPayment)->count()),
+                    'adminLowStockCount' => once(fn () => Product::whereRaw('(stock_gram - reserved_stock_gram) <= low_stock_threshold_gram')->count()),
                 ]);
             }
         });

@@ -36,17 +36,31 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        $pendingOrders = Order::where('order_status', OrderStatus::PendingPayment)->count();
-        $processingOrders = Order::where('order_status', OrderStatus::Processing)->count();
-        $readyOrders = Order::whereIn('order_status', [OrderStatus::ReadyForPickup, OrderStatus::OnDelivery])->count();
+        // Single grouped query for order pipeline counts
+        $orderCounts = Order::whereIn('order_status', [
+            OrderStatus::PendingPayment,
+            OrderStatus::Processing,
+            OrderStatus::ReadyForPickup,
+            OrderStatus::OnDelivery,
+        ])
+            ->select('order_status', DB::raw('count(*) as count'))
+            ->groupBy('order_status')
+            ->pluck('count', 'order_status')
+            ->all();
 
-        $paidOrdersToday = Order::where('payment_status', PaymentStatus::Paid)
-            ->whereDate(DB::raw('COALESCE(paid_at, created_at)'), today())
-            ->count();
+        $pendingOrders = $orderCounts[OrderStatus::PendingPayment->value] ?? 0;
+        $processingOrders = $orderCounts[OrderStatus::Processing->value] ?? 0;
+        $readyOrders = ($orderCounts[OrderStatus::ReadyForPickup->value] ?? 0)
+            + ($orderCounts[OrderStatus::OnDelivery->value] ?? 0);
 
-        $todayRevenue = (float) Order::where('payment_status', PaymentStatus::Paid)
+        // Single query for today's sales count and revenue
+        $todaySummary = Order::where('payment_status', PaymentStatus::Paid)
             ->whereDate(DB::raw('COALESCE(paid_at, created_at)'), today())
-            ->sum('total_amount');
+            ->selectRaw('COUNT(*) as total_count, COALESCE(SUM(total_amount), 0) as total_sum')
+            ->first();
+
+        $paidOrdersToday = (int) ($todaySummary->total_count ?? 0);
+        $todayRevenue = (float) ($todaySummary->total_sum ?? 0);
 
         $monthRevenue = (float) Order::where('payment_status', PaymentStatus::Paid)
             ->whereBetween(DB::raw('DATE(COALESCE(paid_at, created_at))'), [

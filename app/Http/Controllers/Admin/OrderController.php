@@ -79,16 +79,22 @@ class OrderController extends Controller
 
         $orders = $query->paginate(15)->withQueryString();
 
-        // Summary counts for quick tabs / badges
+        // Summary counts for quick tabs / badges (optimized to a single grouped query)
+        $statusCounts = Order::query()
+            ->select('order_status', DB::raw('count(*) as aggregate'))
+            ->groupBy('order_status')
+            ->pluck('aggregate', 'order_status')
+            ->all();
+
         $counters = [
-            'all' => Order::count(),
-            'pending_payment' => Order::where('order_status', OrderStatus::PendingPayment)->count(),
-            'processing' => Order::where('order_status', OrderStatus::Processing)->count(),
-            'ready_for_pickup' => Order::where('order_status', OrderStatus::ReadyForPickup)->count(),
-            'on_delivery' => Order::where('order_status', OrderStatus::OnDelivery)->count(),
-            'completed' => Order::where('order_status', OrderStatus::Completed)->count(),
-            'cancelled' => Order::where('order_status', OrderStatus::Cancelled)->count(),
-            'expired' => Order::where('order_status', OrderStatus::Expired)->count(),
+            'all' => array_sum($statusCounts),
+            'pending_payment' => $statusCounts[OrderStatus::PendingPayment->value] ?? 0,
+            'processing' => $statusCounts[OrderStatus::Processing->value] ?? 0,
+            'ready_for_pickup' => $statusCounts[OrderStatus::ReadyForPickup->value] ?? 0,
+            'on_delivery' => $statusCounts[OrderStatus::OnDelivery->value] ?? 0,
+            'completed' => $statusCounts[OrderStatus::Completed->value] ?? 0,
+            'cancelled' => $statusCounts[OrderStatus::Cancelled->value] ?? 0,
+            'expired' => $statusCounts[OrderStatus::Expired->value] ?? 0,
         ];
 
         return view('admin.orders.index', compact('orders', 'counters'));
