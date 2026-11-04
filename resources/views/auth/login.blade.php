@@ -42,7 +42,7 @@
             <div class="space-y-4">
                 <div>
                     <label for="email" class="block text-sm font-semibold text-slate-700 mb-1">
-                        Email Akun atau Peran
+                        Email Akun
                     </label>
                     <input id="email" 
                            name="email" 
@@ -51,7 +51,7 @@
                            required 
                            value="{{ old('email') }}"
                            class="appearance-none block w-full px-3.5 py-2.5 border @error('email') border-rose-400 bg-rose-50/30 @else border-slate-300 @enderror rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-600 text-sm transition"
-                           placeholder="pemilik / admin / kasir atau email lengkap">
+                           placeholder="nama@donsmeat.local">
                     @error('email')
                         <p class="mt-1.5 text-xs text-rose-600 font-medium">{{ $message }}</p>
                     @enderror
@@ -72,29 +72,6 @@
                         <p class="mt-1.5 text-xs text-rose-600 font-medium">{{ $message }}</p>
                     @enderror
                 </div>
-            </div>
-
-            <!-- Demo Account Quick Fill Helper -->
-            <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Pilih Akun Demo (Klik untuk isi otomatis):</span>
-                <div class="grid grid-cols-3 gap-2">
-                    <button type="button" 
-                            onclick="fillCredentials('pemilik@donsmeat.local', 'password')"
-                            class="px-2 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-xs font-bold text-center transition">
-                        👑 Pemilik
-                    </button>
-                    <button type="button" 
-                            onclick="fillCredentials('admin@donsmeat.local', 'password')"
-                            class="px-2 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 text-xs font-bold text-center transition">
-                        ⚙️ Admin
-                    </button>
-                    <button type="button" 
-                            onclick="fillCredentials('kasir@donsmeat.local', 'password')"
-                            class="px-2 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 text-xs font-bold text-center transition">
-                        💵 Kasir
-                    </button>
-                </div>
-                <p class="text-[10px] text-slate-400 text-center">Password default semua akun: <code class="font-mono text-slate-600 bg-white px-1 rounded">password</code></p>
             </div>
 
             <div class="flex items-center justify-between">
@@ -121,18 +98,6 @@
                 Khusus Pemilik, Admin, dan Kasir DONS MEAT. Tidak memerlukan pendaftaran untuk pelanggan.
             </p>
         </form>
-
-        <script>
-            function fillCredentials(email, password) {
-                const emailInput = document.getElementById('email');
-                const passwordInput = document.getElementById('password');
-                if (emailInput && passwordInput) {
-                    emailInput.value = email;
-                    passwordInput.value = password;
-                    emailInput.focus();
-                }
-            }
-        </script>
 
     </div>
 </body>
