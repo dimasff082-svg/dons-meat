@@ -49,7 +49,7 @@ Route::post('/midtrans/notification', [MidtransWebhookController::class, 'handle
 Route::get('/login', fn () => redirect()->route('admin.login'))->name('login');
 Route::get('/admin/login', [LoginController::class, 'showLoginForm'])->name('admin.login');
 Route::post('/admin/login', [LoginController::class, 'login'])->name('admin.login.submit');
-Route::post('/admin/logout', [LoginController::class, 'logout'])->name('admin.logout');
+Route::match(['get', 'post'], '/admin/logout', [LoginController::class, 'logout'])->name('admin.logout');
 
 // Internal routes (Admin, Owner, Cashier)
 Route::middleware(['auth', 'active'])->prefix('admin')->name('admin.')->group(function () {

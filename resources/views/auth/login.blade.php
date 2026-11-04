@@ -15,7 +15,21 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-900 via-red-950 to-slate-900 text-slate-800">
-    <div class="max-w-md w-full space-y-8 bg-white p-8 sm:p-10 rounded-2xl shadow-2xl border border-red-900/10">
+    <div class="max-w-md w-full space-y-4">
+        
+        <!-- Back to Home Button (Top) -->
+        <div>
+            <a href="{{ route('home') }}" 
+               id="backToHomeTopBtn"
+               class="inline-flex items-center text-xs font-semibold text-slate-300 hover:text-white transition group py-1.5 px-3 rounded-lg hover:bg-white/10">
+                <svg class="w-4 h-4 mr-2 transition transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Kembali ke Beranda
+            </a>
+        </div>
+
+        <div class="space-y-8 bg-white p-8 sm:p-10 rounded-2xl shadow-2xl border border-red-900/10">
         
         <!-- Header -->
         <div class="text-center">
@@ -97,8 +111,20 @@
             <p class="text-center text-xs text-slate-400 mt-4">
                 Khusus Pemilik, Admin, dan Kasir DONS MEAT. Tidak memerlukan pendaftaran untuk pelanggan.
             </p>
+
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-center">
+                <a href="{{ route('home') }}" 
+                   id="backToHomeBottomBtn"
+                   class="inline-flex items-center text-xs font-semibold text-slate-500 hover:text-red-700 transition">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    Kembali ke Beranda Toko
+                </a>
+            </div>
         </form>
 
     </div>
+</div>
 </body>
 </html>

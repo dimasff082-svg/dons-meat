@@ -17,6 +17,7 @@ class InternalAuthTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('DONS MEAT');
         $response->assertSee('Login Internal');
+        $response->assertSee('Kembali ke Beranda');
     }
 
     public function test_authenticated_user_is_redirected_away_from_login_page(): void
@@ -220,13 +221,16 @@ class InternalAuthTest extends TestCase
         $response->assertRedirect(route('admin.reports.sales'));
     }
 
-    public function test_user_can_logout(): void
+    public function test_user_can_logout_via_post_and_get(): void
     {
         $user = User::factory()->owner()->create();
 
-        $response = $this->actingAs($user)->post('/admin/logout');
+        $responsePost = $this->actingAs($user)->post('/admin/logout');
+        $responsePost->assertRedirect(route('admin.login'));
+        $this->assertGuest();
 
-        $response->assertRedirect(route('admin.login'));
+        $responseGet = $this->actingAs($user)->get('/admin/logout');
+        $responseGet->assertRedirect(route('admin.login'));
         $this->assertGuest();
     }
 }

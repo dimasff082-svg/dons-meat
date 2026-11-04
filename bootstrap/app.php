@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo('/admin/login');
         $middleware->validateCsrfTokens(except: [
             'midtrans/notification',
+            'admin/logout',
         ]);
         $middleware->alias([
             'active' => EnsureUserIsActive::class,
@@ -27,4 +28,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, Request $request) {
+            if ($request->is('admin/*') || $request->is('admin')) {
+                return redirect()->route('admin.login')->with('status', 'Sesi Anda telah kedaluwarsa. Silakan masuk kembali.');
+            }
+
+            return redirect()->back()->withInput()->with('status', 'Sesi telah kedaluwarsa. Silakan coba kembali.');
+        });
     })->create();
