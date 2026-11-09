@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
-@section('title', 'Katalog Daging Sapi')
-@section('meta_description', 'Jelajahi pilihan daging sapi segar DONS MEAT: daging utuh, potongan khusus, dan tulang dengan berbagai opsi berat.')
+@section('title', 'Katalog Daging Pilihan')
+@section('meta_description', 'Jelajahi aneka pilihan daging segar berkualitas DONS MEAT: sapi, kambing, ayam, potongan khusus, dan tulang dengan berbagai opsi berat.')
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
@@ -9,9 +9,9 @@
     <!-- Title & Search Bar -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Katalog Daging Sapi</h1>
+            <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Katalog Daging Segar</h1>
             <p class="text-xs sm:text-sm text-slate-500 mt-1">
-                Pilih daging sapi segar berkualitas sesuai kebutuhan potongan dan berat Anda.
+                Pilih aneka daging segar berkualitas sesuai kebutuhan potongan dan berat Anda.
             </p>
         </div>
 
@@ -27,7 +27,7 @@
                 <input type="text" 
                        name="q" 
                        value="{{ request('q') }}"
-                       placeholder="Cari nama daging atau potongan..." 
+                       placeholder="Cari aneka daging, potongan, atau SKU..." 
                        class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-600 bg-white shadow-xs">
                 <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>

@@ -133,5 +133,8 @@ class PublicCatalogTest extends TestCase
         $response->assertSee('DONS MEAT MAKASSAR');
         $response->assertSee('Jl. Pengayoman No. 12');
         $response->assertSee('140.000');
+        $response->assertSee('Sertifikasi Halal Indonesia');
+        $response->assertSee('Sertifikasi NKV Resmi');
+        $response->assertSee('Iga Premium Sapi Lokal');
     }
 }

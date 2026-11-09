@@ -40,7 +40,7 @@
                 </div>
                 <h2 class="text-xl font-bold text-slate-900">Keranjang Belanja Anda Kosong</h2>
                 <p class="text-sm text-slate-500 mt-2 max-w-md mx-auto">
-                    Anda belum memilih potongan daging sapi segar. Jelajahi katalog kami untuk menemukan daging utuh, potongan steak, atau tulang berkualitas.
+                    Anda belum memilih potongan daging segar. Jelajahi katalog kami untuk menemukan aneka daging sapi, kambing, ayam, potongan steak, atau tulang berkualitas.
                 </p>
                 <div class="mt-6">
                     <a href="{{ route('catalog.index') }}" 

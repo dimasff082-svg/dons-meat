@@ -71,6 +71,15 @@ class DirectSaleController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        if ($request->has('amount_paid')) {
+            $rawAmount = (string) $request->input('amount_paid');
+            // Remove thousand separator dots or spaces, allow decimal point if present
+            $cleaned = preg_replace('/[^0-9]/', '', $rawAmount);
+            $request->merge([
+                'amount_paid' => $cleaned === '' ? 0 : (float) $cleaned,
+            ]);
+        }
+
         $validated = $request->validate([
             'customer_name' => ['nullable', 'string', 'max:100'],
             'customer_phone' => ['nullable', 'string', 'max:50'],

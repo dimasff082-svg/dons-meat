@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductWeightOptionController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\SalesHistoryController;
 use App\Http\Controllers\Admin\StoreSettingController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\LoginController;
@@ -70,12 +71,22 @@ Route::middleware(['auth', 'active'])->prefix('admin')->name('admin.')->group(fu
         // Orders Management
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::get('orders/{order}/print', [OrderController::class, 'printLabel'])->name('orders.print');
         Route::patch('orders/{order}/fulfillment', [OrderController::class, 'updateFulfillment'])->name('orders.fulfillment');
         Route::post('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+
+        // Riwayat Penjualan Kasir Pribadi (Dilayani oleh Kasir)
+        Route::get('my-sales-history', [SalesHistoryController::class, 'myHistory'])->name('my-sales-history.index');
+        Route::get('my-sales-history/export', [SalesHistoryController::class, 'exportMyCsv'])->name('my-sales-history.export');
     });
 
-    // 3. Reports (Owner and Admin)
+    // 3. Reports & Sales History (Owner and Admin)
     Route::middleware('role:owner,admin')->group(function () {
+        // Riwayat Seluruh Penjualan
+        Route::get('sales-history', [SalesHistoryController::class, 'index'])->name('sales-history.index');
+        Route::get('sales-history/export', [SalesHistoryController::class, 'exportAllCsv'])->name('sales-history.export');
+
+        // Laporan Penjualan & Stok Menipis
         Route::get('reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
         Route::get('reports/sales/export', [ReportController::class, 'exportSalesCsv'])->name('reports.sales.export');
         Route::get('reports/low-stock', [ReportController::class, 'lowStock'])->name('reports.low-stock');

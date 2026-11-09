@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'Daging Sapi Segar Pilihan') — DONS MEAT</title>
-    <meta name="description" content="@yield('meta_description', 'DONS MEAT menyediakan daging sapi segar berkualitas, daging utuh, potongan khusus, dan tulang dengan pemesanan online dan pengambilan di toko.')">
+    <title>@yield('title', 'Pusat Daging Segar & Potongan Berkualitas') — DONS MEAT</title>
+    <meta name="description" content="@yield('meta_description', 'DONS MEAT menyediakan aneka daging segar berkualitas: daging sapi, kambing, ayam, potongan khusus, dan aneka olahan daging dengan pemesanan online dan pengambilan di toko.')">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -29,7 +29,7 @@
                 <span>Toko Buka: {{ $globalSetting->opening_hours ? explode("\n", $globalSetting->opening_hours)[0] : '08.00 - 18.00 WITA' }}</span>
             </div>
             <div class="flex items-center space-x-2 font-medium">
-                <span class="text-red-300">Harga Standar Daging Sapi:</span>
+                <span class="text-red-300">Harga Acuan Standar Daging:</span>
                 <span class="font-bold text-amber-300">Rp {{ number_format($globalSetting->standard_beef_price_per_kg, 0, ',', '.') }}/kg</span>
             </div>
         </div>
@@ -41,12 +41,18 @@
             
             <!-- Brand Logo -->
             <a href="{{ route('home') }}" class="flex items-center space-x-3 group">
-                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-red-700 to-red-900 text-white flex items-center justify-center font-extrabold text-2xl shadow-md group-hover:scale-105 transition transform">
-                    D
-                </div>
+                @if($globalSetting->logo_path && file_exists(public_path('storage/' . $globalSetting->logo_path)))
+                    <img src="{{ asset('storage/' . $globalSetting->logo_path) }}" 
+                         alt="{{ $globalSetting->business_name }}" 
+                         class="h-11 w-auto max-w-[120px] object-contain rounded-xl shadow-xs group-hover:scale-105 transition transform">
+                @else
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-red-700 to-red-900 text-white flex items-center justify-center font-extrabold text-2xl shadow-md group-hover:scale-105 transition transform">
+                        D
+                    </div>
+                @endif
                 <div>
                     <span class="font-extrabold text-xl sm:text-2xl tracking-wider text-slate-900 block leading-tight">{{ $globalSetting->business_name }}</span>
-                    <span class="text-[11px] font-semibold text-red-700 tracking-wide block uppercase">Fresh Beef & Special Cuts</span>
+                    <span class="text-[11px] font-semibold text-red-700 tracking-wide block uppercase">Fresh Meat & Quality Cuts</span>
                 </div>
             </a>
 
@@ -132,17 +138,23 @@
                 
                 <div class="md:col-span-2 space-y-4">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 text-white flex items-center justify-center font-extrabold text-xl">
-                            D
-                        </div>
+                        @if($globalSetting->logo_path && file_exists(public_path('storage/' . $globalSetting->logo_path)))
+                            <img src="{{ asset('storage/' . $globalSetting->logo_path) }}" 
+                                 alt="{{ $globalSetting->business_name }}" 
+                                 class="h-10 w-auto max-w-[110px] object-contain rounded-xl bg-white p-1">
+                        @else
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 text-white flex items-center justify-center font-extrabold text-xl">
+                                D
+                            </div>
+                        @endif
                         <span class="font-extrabold text-xl text-white tracking-wider">{{ $globalSetting->business_name }}</span>
                     </div>
                     <p class="text-sm text-slate-400 max-w-sm leading-relaxed">
-                        {{ $globalSetting->business_description ?? 'Sistem informasi penjualan daging sapi segar, potongan khusus, dan tulang berkualitas tinggi.' }}
+                        {{ $globalSetting->business_description ?? 'Pusat penyedia aneka daging segar (sapi, kambing, ayam), potongan khusus, dan aneka olahan berkualitas tinggi.' }}
                     </p>
                     <div class="pt-2">
                         <span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold bg-red-950/80 text-amber-300 border border-red-900/50">
-                            Harga Standar Saat Ini: Rp {{ number_format($globalSetting->standard_beef_price_per_kg, 0, ',', '.') }}/kg
+                            Harga Acuan Daging: Rp {{ number_format($globalSetting->standard_beef_price_per_kg, 0, ',', '.') }}/kg
                         </span>
                     </div>
                 </div>

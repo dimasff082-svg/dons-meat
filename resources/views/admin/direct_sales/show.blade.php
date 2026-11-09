@@ -31,6 +31,11 @@
     <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8 font-mono text-slate-900 receipt-box" id="printableReceipt">
         <!-- Receipt Header -->
         <div class="text-center pb-4 border-b border-dashed border-slate-300">
+            @if($storeSetting->logo_path && file_exists(public_path('storage/' . $storeSetting->logo_path)))
+                <div class="flex justify-center mb-2">
+                    <img src="{{ asset('storage/' . $storeSetting->logo_path) }}" alt="{{ $storeSetting->business_name }}" class="h-10 w-auto object-contain">
+                </div>
+            @endif
             <h2 class="text-xl font-black tracking-wider uppercase">{{ $storeSetting->business_name ?? 'DONS MEAT' }}</h2>
             <p class="text-xs text-slate-600 mt-1">{{ $storeSetting->address ?? 'Jl. Pengayoman, Makassar' }}</p>
             <p class="text-xs text-slate-600">Telp/WA: {{ $storeSetting->phone ?? '-' }}</p>

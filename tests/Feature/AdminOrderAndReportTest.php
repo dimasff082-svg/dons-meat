@@ -10,8 +10,11 @@ use App\Enums\StockMovementType;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\StoreSetting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class AdminOrderAndReportTest extends TestCase
@@ -391,5 +394,146 @@ class AdminOrderAndReportTest extends TestCase
         $response->assertStatus(200);
         $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
         $this->assertStringContainsString('laporan-stok-menipis-dons-meat-', (string) $response->headers->get('Content-Disposition'));
+    }
+
+    public function test_admin_and_cashier_can_view_order_print_label_and_receipt(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $order = Order::factory()->create([
+            'order_code' => 'DM-PRINT-001',
+            'customer_name' => 'Pak Haji Amiruddin',
+            'customer_phone' => '081299887766',
+            'delivery_address' => 'Jl. Boulevard No. 88, Panakkukang, Makassar',
+            'fulfillment_method' => FulfillmentMethod::Delivery,
+            'order_status' => OrderStatus::Processing,
+            'payment_status' => PaymentStatus::Paid,
+            'customer_note' => 'Pagar abu-abu sebelah toko bunga',
+        ]);
+
+        OrderItem::create([
+            'order_id' => $order->id,
+            'product_id' => Product::factory()->create()->id,
+            'product_name_snapshot' => 'Iga Konro Segar',
+            'product_sku_snapshot' => 'DM-KNR-01',
+            'weight_per_package_gram' => 500,
+            'quantity' => 2,
+            'total_weight_gram' => 1000,
+            'price_per_kg_snapshot' => 110000,
+            'subtotal' => 110000,
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.orders.print', $order));
+
+        $response->assertStatus(200);
+        $response->assertSee('DM-PRINT-001');
+        $response->assertSee('Pak Haji Amiruddin');
+        $response->assertSee('081299887766');
+        $response->assertSee('Jl. Boulevard No. 88');
+        $response->assertSee('Iga Konro Segar');
+        $response->assertSee('TUJUAN PENGANTARAN');
+        $response->assertSee('SUDAH LUNAS');
+    }
+
+    public function test_admin_can_update_store_settings_including_logo(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->admin()->create();
+
+        $logoFile = UploadedFile::fake()->image('custom_logo.png', 200, 200);
+
+        $response = $this->actingAs($admin)->put(route('admin.settings.update'), [
+            'business_name' => 'DONS MEAT PUSAT',
+            'standard_beef_price_per_kg' => 140000,
+            'business_description' => 'Pusat aneka daging terpercaya',
+            'phone' => '08111222333',
+            'email' => 'halo@donsmeat.id',
+            'address' => 'Makassar Kota',
+            'opening_hours' => '08.00 - 18.00 WITA',
+            'payment_expiry_minutes' => 60,
+            'timezone' => 'Asia/Makassar',
+            'logo' => $logoFile,
+        ]);
+
+        $response->assertRedirect(route('admin.settings.edit'));
+        $response->assertSessionHas('status');
+
+        $setting = StoreSetting::current();
+        $this->assertEquals('DONS MEAT PUSAT', $setting->business_name);
+        $this->assertNotNull($setting->logo_path);
+        Storage::disk('public')->assertExists($setting->logo_path);
+    }
+
+    public function test_owner_and_admin_can_view_overall_sales_history_and_export_csv(): void
+    {
+        $owner = User::factory()->owner()->create();
+        $admin = User::factory()->admin()->create();
+        $cashier = User::factory()->cashier()->create();
+
+        Order::factory()->create([
+            'order_code' => 'ORD-ALL-001',
+            'channel' => OrderChannel::InStore,
+            'order_status' => OrderStatus::Completed,
+            'payment_status' => PaymentStatus::Paid,
+            'created_by_user_id' => $cashier->id,
+            'total_amount' => 150000,
+        ]);
+
+        // Owner can access
+        $ownerResponse = $this->actingAs($owner)->get(route('admin.sales-history.index'));
+        $ownerResponse->assertStatus(200);
+        $ownerResponse->assertSee('ORD-ALL-001');
+        $ownerResponse->assertSee('Riwayat Seluruh Penjualan');
+
+        // Admin can access
+        $adminResponse = $this->actingAs($admin)->get(route('admin.sales-history.index'));
+        $adminResponse->assertStatus(200);
+        $adminResponse->assertSee('ORD-ALL-001');
+
+        // Export CSV
+        $exportResponse = $this->actingAs($owner)->get(route('admin.sales-history.export'));
+        $exportResponse->assertStatus(200);
+        $exportResponse->assertHeader('content-type', 'text/csv; charset=UTF-8');
+        $this->assertStringContainsString('ORD-ALL-001', $exportResponse->streamedContent());
+    }
+
+    public function test_cashier_cannot_access_overall_sales_history_but_can_view_personal_sales_history(): void
+    {
+        $cashierA = User::factory()->cashier()->create(['name' => 'Kasir Siti']);
+        $cashierB = User::factory()->cashier()->create(['name' => 'Kasir Budi']);
+
+        Order::factory()->create([
+            'order_code' => 'ORD-KASIR-A',
+            'channel' => OrderChannel::InStore,
+            'order_status' => OrderStatus::Completed,
+            'payment_status' => PaymentStatus::Paid,
+            'created_by_user_id' => $cashierA->id,
+            'total_amount' => 75000,
+        ]);
+
+        Order::factory()->create([
+            'order_code' => 'ORD-KASIR-B',
+            'channel' => OrderChannel::InStore,
+            'order_status' => OrderStatus::Completed,
+            'payment_status' => PaymentStatus::Paid,
+            'created_by_user_id' => $cashierB->id,
+            'total_amount' => 95000,
+        ]);
+
+        // Cashier cannot access overall history (403)
+        $forbiddenResponse = $this->actingAs($cashierA)->get(route('admin.sales-history.index'));
+        $forbiddenResponse->assertStatus(403);
+
+        // Cashier can access personal history
+        $personalResponse = $this->actingAs($cashierA)->get(route('admin.my-sales-history.index'));
+        $personalResponse->assertStatus(200);
+        $personalResponse->assertSee('ORD-KASIR-A');
+        $personalResponse->assertDontSee('ORD-KASIR-B');
+
+        // Export personal CSV
+        $exportResponse = $this->actingAs($cashierA)->get(route('admin.my-sales-history.export'));
+        $exportResponse->assertStatus(200);
+        $exportResponse->assertHeader('content-type', 'text/csv; charset=UTF-8');
+        $this->assertStringContainsString('ORD-KASIR-A', $exportResponse->streamedContent());
+        $this->assertStringNotContainsString('ORD-KASIR-B', $exportResponse->streamedContent());
     }
 }

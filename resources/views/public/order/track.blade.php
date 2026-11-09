@@ -217,7 +217,7 @@
                             </span>
                         @else
                             <p>Pesanan Anda sedang dipersiapkan oleh tim DONS MEAT.</p>
-                            <p>Silakan siapkan uang tunai pas sebesar <strong class="text-amber-300 font-mono text-base">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</strong> untuk diserahkan kepada kurir pengantar saat paket daging sapi tiba.</p>
+                            <p>Silakan siapkan uang tunai pas sebesar <strong class="text-amber-300 font-mono text-base">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</strong> untuk diserahkan kepada kurir pengantar saat paket daging tiba.</p>
                         @endif
                     </div>
                 </div>

@@ -15,13 +15,20 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="h-full antialiased font-sans text-slate-800" x-data="{ mobileMenuOpen: false }">
+    @php
+        $adminSetting = \App\Models\StoreSetting::current();
+    @endphp
     <div class="min-h-full flex flex-col lg:flex-row">
         
         <!-- Mobile Header Bar -->
         <header class="lg:hidden flex items-center justify-between px-4 py-3 bg-red-950 text-white border-b border-red-900 sticky top-0 z-30">
             <div class="flex items-center space-x-2">
-                <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-700 text-white font-bold text-lg">D</span>
-                <span class="font-bold tracking-wider text-base">DONS MEAT</span>
+                @if($adminSetting->logo_path && file_exists(public_path('storage/' . $adminSetting->logo_path)))
+                    <img src="{{ asset('storage/' . $adminSetting->logo_path) }}" alt="{{ $adminSetting->business_name }}" class="h-8 w-auto max-w-[80px] object-contain rounded-md bg-white p-0.5">
+                @else
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-700 text-white font-bold text-lg">D</span>
+                @endif
+                <span class="font-bold tracking-wider text-base">{{ $adminSetting->business_name }}</span>
             </div>
             <button type="button" 
                     id="mobileMenuToggleBtn"
@@ -38,9 +45,13 @@
             <!-- Brand -->
             <div class="h-16 flex items-center px-6 border-b border-red-900/40">
                 <div class="flex items-center space-x-3">
-                    <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-red-600 to-red-800 text-white font-bold text-xl shadow-inner">D</span>
+                    @if($adminSetting->logo_path && file_exists(public_path('storage/' . $adminSetting->logo_path)))
+                        <img src="{{ asset('storage/' . $adminSetting->logo_path) }}" alt="{{ $adminSetting->business_name }}" class="h-9 w-auto max-w-[90px] object-contain rounded-lg bg-white p-1">
+                    @else
+                        <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-red-600 to-red-800 text-white font-bold text-xl shadow-inner">D</span>
+                    @endif
                     <div>
-                        <div class="font-bold tracking-wider text-base leading-tight">DONS MEAT</div>
+                        <div class="font-bold tracking-wider text-base leading-tight">{{ $adminSetting->business_name }}</div>
                         <div class="text-[11px] text-red-300 font-medium tracking-wide">INTERNAL PANEL</div>
                     </div>
                 </div>
@@ -99,9 +110,25 @@
                         @endif
                     </a>
 
+                    <a href="{{ route('admin.my-sales-history.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition {{ request()->routeIs('admin.my-sales-history.*') ? 'bg-red-800/80 text-white shadow-sm' : 'text-slate-300 hover:bg-red-900/40 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Riwayat Layanan Kasir
+                    </a>
+
                 @elseif(auth()->user()->isOwner())
                     <!-- Pemilik Only Navigation (Laporan Usaha & Acuan Restock) -->
                     <div class="pb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-amber-300/80">Laporan Usaha Pemilik</div>
+
+                    <a href="{{ route('admin.sales-history.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition {{ request()->routeIs('admin.sales-history.*') ? 'bg-red-800/80 text-white shadow-sm' : 'text-slate-300 hover:bg-red-900/40 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Riwayat Seluruh Penjualan
+                    </a>
 
                     <a href="{{ route('admin.reports.sales') }}" 
                        class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition {{ request()->routeIs('admin.reports.sales*') ? 'bg-red-800/80 text-white shadow-sm' : 'text-slate-300 hover:bg-red-900/40 hover:text-white' }}">
@@ -159,6 +186,14 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
                         </svg>
                         Penjualan Langsung
+                    </a>
+
+                    <a href="{{ route('admin.sales-history.index') }}" 
+                       class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition {{ request()->routeIs('admin.sales-history.*') ? 'bg-red-800/80 text-white shadow-sm' : 'text-slate-300/80 hover:bg-red-900/40 hover:text-white' }}">
+                        <svg class="w-5 h-5 mr-3 text-red-400/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Riwayat Seluruh Penjualan
                     </a>
 
                     <div class="pt-3 pb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-red-300/70">Katalog & Stok</div>

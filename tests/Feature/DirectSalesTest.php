@@ -304,4 +304,40 @@ class DirectSalesTest extends TestCase
         $response->assertSee('Budi Santoso');
         $response->assertSee('Rp 100.000');
     }
+
+    public function test_direct_sale_accepts_formatted_amount_paid_with_thousand_dots(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $category = Category::factory()->create();
+        $product = Product::factory()->create([
+            'category_id' => $category->id,
+            'price_per_kg' => 175000.00,
+            'stock_gram' => 5000,
+        ]);
+        $weightOption = ProductWeightOption::factory()->create([
+            'product_id' => $product->id,
+            'weight_gram' => 250, // 250g of 175.000 = Rp 43.750
+        ]);
+
+        $response = $this->actingAs($admin)->post('/admin/direct-sales', [
+            'customer_name' => 'Pelanggan 43750',
+            'payment_method' => 'cash',
+            'amount_paid' => '43.750', // Formatted input with dot
+            'items' => [
+                [
+                    'product_id' => $product->id,
+                    'weight_option_id' => $weightOption->id,
+                    'quantity' => 1,
+                ],
+            ],
+        ]);
+
+        $order = Order::where('customer_name', 'Pelanggan 43750')->first();
+        $this->assertNotNull($order);
+        $this->assertEquals(43750.00, (float) $order->total_amount);
+        $this->assertEquals(43750, $order->payments()->first()->metadata['amount_paid']);
+        $this->assertEquals(0, $order->payments()->first()->metadata['change']);
+        $this->assertEquals(PaymentStatus::Paid, $order->payment_status);
+        $response->assertRedirect(route('admin.direct-sales.show', $order));
+    }
 }

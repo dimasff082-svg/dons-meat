@@ -49,7 +49,7 @@
                     </svg>
                 </div>
                 <h3 class="text-base font-bold text-slate-900">Semua Persediaan Aman</h3>
-                <p class="text-xs text-slate-500 mt-1">Tidak ada produk daging sapi yang berada di bawah ambang batas minimum stok saat ini.</p>
+                <p class="text-xs text-slate-500 mt-1">Tidak ada produk daging yang berada di bawah ambang batas minimum stok saat ini.</p>
             </div>
         @else
             <div class="overflow-x-auto">

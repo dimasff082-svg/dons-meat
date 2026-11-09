@@ -10,10 +10,10 @@
         <!-- Background Photo Asset -->
         <div class="absolute inset-0 z-0">
             <img src="{{ asset('images/hero-meat.jpg') }}" 
-                 alt="Background Daging Sapi Segar DONS MEAT" 
-                 class="w-full h-full object-cover object-center filter brightness-75 contrast-110">
-            <!-- Dark culinary overlay to ensure contrast and readability -->
-            <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/80"></div>
+                 alt="Gerai Pusat DONS MEAT" 
+                 class="w-full h-full object-cover object-center filter brightness-90 contrast-105">
+            <!-- Modern dark overlay to highlight store photo while keeping white text sharp and readable -->
+            <div class="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/65 to-slate-950/85"></div>
         </div>
         
         <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -22,15 +22,15 @@
                 <!-- Left text content -->
                 <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
                     <div class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wide uppercase bg-red-700/80 text-red-100 border border-red-600/60 shadow-md backdrop-blur-sm">
-                        Daging Sapi Segar Pilihan Terbaik
+                        Daging Segar Pilihan Terbaik
                     </div>
 
                     <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight text-white drop-shadow-md">
-                        Kualitas Terbaik untuk Setiap Potongan Daging Sapi Anda
+                        Kualitas Terbaik untuk Setiap Potongan Daging Pilihan Anda
                     </h1>
 
                     <p class="text-base sm:text-lg text-slate-100/90 max-w-xl mx-auto lg:mx-0 font-normal leading-relaxed drop-shadow-sm">
-                        {{ $setting->business_description ?? 'DONS MEAT menyediakan daging sapi segar dengan pilihan potongan utuh, potongan khusus, dan tulang. Siap untuk pengambilan di toko atau pengiriman langsung.' }}
+                        {{ $setting->business_description ?? 'DONS MEAT menyediakan aneka daging segar pilihan (sapi, kambing, ayam, potongan khusus, dan tulang). Siap untuk pengambilan di toko atau pengiriman langsung.' }}
                     </p>
 
                     <div class="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
@@ -53,7 +53,7 @@
                             <span class="inline-block text-xs uppercase tracking-widest font-extrabold text-red-300">
                                 Acuan Resmi Usaha
                             </span>
-                            <h2 class="text-xl font-bold">Harga Standar Daging Sapi</h2>
+                            <h2 class="text-xl font-bold">Harga Acuan Standar Daging</h2>
                         </div>
 
                         <div class="py-4 bg-black/30 rounded-2xl border border-white/10">
@@ -90,7 +90,7 @@
         <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
                 <span class="text-xs font-bold uppercase tracking-wider text-red-700">Pilihan Produk</span>
-                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">Kategori Daging Sapi</h2>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">Kategori Daging Pilihan</h2>
             </div>
             <a href="{{ route('catalog.index') }}" class="text-sm font-bold text-red-700 hover:text-red-800">
                 Semua Kategori &rarr;
@@ -106,7 +106,7 @@
                     </div>
                     <h3 class="text-lg font-bold text-slate-900 group-hover:text-red-700 transition">{{ $category->name }}</h3>
                     <p class="text-xs sm:text-sm text-slate-500 mt-2 line-clamp-2 leading-relaxed">
-                        {{ $category->description ?? 'Daging sapi segar pilihan dengan kualitas terjamin.' }}
+                        {{ $category->description ?? 'Aneka daging segar pilihan dengan kualitas dan higienitas terjamin.' }}
                     </p>
                     <div class="mt-4 flex items-center justify-between text-xs font-semibold text-slate-400">
                         <span>{{ $category->products_count }} Produk</span>
@@ -171,7 +171,7 @@
                         <div class="p-5 flex-1 flex flex-col justify-between">
                             <div>
                                 <h3 class="font-bold text-base text-slate-900 line-clamp-1">{{ $product->name }}</h3>
-                                <p class="text-xs text-slate-500 mt-1 line-clamp-2">{{ $product->description ?? 'Daging sapi segar dengan standar kualitas tinggi.' }}</p>
+                                <p class="text-xs text-slate-500 mt-1 line-clamp-2">{{ $product->description ?? 'Daging segar pilihan dengan standar kualitas tinggi dan higienis.' }}</p>
 
                                 <div class="mt-3">
                                     <span class="text-xs text-slate-400 font-medium">Harga / kg</span>

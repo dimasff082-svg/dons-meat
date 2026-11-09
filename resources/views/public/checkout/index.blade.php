@@ -343,7 +343,7 @@
 
                         <div class="p-3 bg-slate-50 rounded-xl text-[11px] text-slate-500 space-y-1">
                             <p class="font-semibold text-slate-700">Ketentuan Pemesanan:</p>
-                            <p>• Daging sapi dipotong dan dikemas higienis sesuai standar DONS MEAT.</p>
+                            <p>• Daging dipotong dan dikemas higienis sesuai standar DONS MEAT.</p>
                             <p>• Stok dicadangkan otomatis selama {{ $storeSetting->payment_expiry_minutes }} menit.</p>
                             <p>• Setelah menekan tombol konfirmasi, Anda akan diarahkan ke halaman pelacakan & pembayaran.</p>
                         </div>

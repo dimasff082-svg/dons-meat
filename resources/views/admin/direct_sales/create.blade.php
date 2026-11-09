@@ -219,16 +219,25 @@
 
                         <!-- Cash Payment Inputs -->
                         <div id="cashFieldsSection" class="space-y-2 pt-1">
-                            <label class="block text-xs font-semibold text-slate-700">Uang Diterima (Rp) <span class="text-red-600">*</span></label>
-                            <input type="number" 
+                            <label for="amountPaidDisplay" class="block text-xs font-semibold text-slate-700">Uang Diterima (Rp) <span class="text-red-600">*</span></label>
+                            
+                            <!-- Hidden input holding raw numeric value for form submission -->
+                            <input type="hidden" 
                                    name="amount_paid" 
                                    id="amountPaidInput" 
-                                   min="0" 
-                                   step="1000"
-                                   value="{{ old('amount_paid', 0) }}"
-                                   placeholder="0"
-                                   required
-                                   class="w-full px-3 py-2 text-sm font-mono font-bold rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-red-500">
+                                   value="{{ old('amount_paid', 0) }}">
+
+                            <!-- Formatted Display Input with automatic dots separator -->
+                            <div class="relative">
+                                <span class="absolute left-3 top-2.5 text-xs font-bold text-slate-400">Rp</span>
+                                <input type="text" 
+                                       id="amountPaidDisplay" 
+                                       inputmode="numeric"
+                                       autocomplete="off"
+                                       value="{{ old('amount_paid') ? number_format((float) old('amount_paid'), 0, ',', '.') : '' }}"
+                                       placeholder="0"
+                                       class="w-full pl-9 pr-3 py-2 text-sm font-mono font-bold rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-red-500">
+                            </div>
                             
                             <!-- Quick amount buttons -->
                             <div class="grid grid-cols-4 gap-1">
@@ -290,6 +299,7 @@
         const totalWeightDisplay = document.getElementById('totalWeightDisplay');
         const totalAmountDisplay = document.getElementById('totalAmountDisplay');
         const amountPaidInput = document.getElementById('amountPaidInput');
+        const amountPaidDisplay = document.getElementById('amountPaidDisplay');
         const changeAmountDisplay = document.getElementById('changeAmountDisplay');
         const submitOrderBtn = document.getElementById('submitOrderBtn');
         const searchInput = document.getElementById('productSearchInput');
@@ -370,7 +380,7 @@
                 totalItemsCount.textContent = '0 paket';
                 totalWeightDisplay.textContent = '0 g (0.00 kg)';
                 totalAmountDisplay.textContent = 'Rp 0';
-                amountPaidInput.value = 0;
+                setAmountPaid(0);
                 changeAmountDisplay.textContent = 'Rp 0';
                 submitOrderBtn.disabled = true;
                 return;
@@ -461,57 +471,93 @@
             totalWeightDisplay.textContent = `${totalWeight.toLocaleString('id-ID')} g (${(totalWeight / 1000).toFixed(2)} kg)`;
             totalAmountDisplay.textContent = `Rp ${subtotal.toLocaleString('id-ID')}`;
 
-            // Auto set exact cash amount if current amount paid is 0 or less than subtotal
-            const currentPaid = parseFloat(amountPaidInput.value) || 0;
-            if (currentPaid === 0 || currentPaid < subtotal) {
-                amountPaidInput.value = subtotal;
+            // Do NOT auto-fill amount paid when products are added.
+            // Leave it empty so cashier enters it manually or clicks a quick button.
+            updatePaymentCalculations();
+        }
+
+        // Helper functions for Indonesian Rupiah dots formatting
+        function parseRupiahNumber(str) {
+            if (typeof str === 'number') return Math.max(0, Math.round(str));
+            const cleanStr = String(str || '').replace(/[^0-9]/g, '');
+            return cleanStr === '' ? 0 : parseInt(cleanStr, 10);
+        }
+
+        function setAmountPaid(val) {
+            const num = parseRupiahNumber(val);
+            amountPaidInput.value = num;
+            amountPaidDisplay.value = num > 0 ? num.toLocaleString('id-ID') : '';
+            updatePaymentCalculations();
+        }
+
+        // Real-time automatic formatting as user types (e.g. 3000 -> 3.000, 43750 -> 43.750)
+        amountPaidDisplay.addEventListener('input', () => {
+            const cursorPosition = amountPaidDisplay.selectionStart;
+            const originalLength = amountPaidDisplay.value.length;
+
+            const rawVal = parseRupiahNumber(amountPaidDisplay.value);
+
+            if (rawVal === 0 && amountPaidDisplay.value.trim() === '') {
+                amountPaidDisplay.value = '';
+                amountPaidInput.value = 0;
+            } else {
+                const formatted = rawVal.toLocaleString('id-ID');
+                amountPaidDisplay.value = formatted;
+                amountPaidInput.value = rawVal;
+
+                // Keep cursor position stable when dots are inserted
+                const newLength = formatted.length;
+                const newCursor = Math.max(0, cursorPosition + (newLength - originalLength));
+                try {
+                    amountPaidDisplay.setSelectionRange(newCursor, newCursor);
+                } catch (e) {}
             }
 
             updatePaymentCalculations();
-            submitOrderBtn.disabled = false;
-        }
+        });
 
         function updatePaymentCalculations() {
             const subtotal = cart.reduce((sum, i) => sum + (i.itemPrice * i.quantity), 0);
             const paid = parseFloat(amountPaidInput.value) || 0;
             const change = Math.max(0, paid - subtotal);
 
-            changeAmountDisplay.textContent = `Rp ${change.toLocaleString('id-ID')}`;
-
             const selectedPaymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value || 'cash';
 
             if (selectedPaymentMethod === 'cash') {
-                if (paid < subtotal && subtotal > 0) {
+                if (paid === 0 && subtotal > 0) {
+                    changeAmountDisplay.textContent = 'Masukkan uang diterima';
+                    changeAmountDisplay.classList.remove('text-emerald-700', 'text-red-600');
+                    changeAmountDisplay.classList.add('text-amber-600');
+                    submitOrderBtn.disabled = true;
+                } else if (paid < subtotal && subtotal > 0) {
                     changeAmountDisplay.textContent = 'Kurang Rp ' + (subtotal - paid).toLocaleString('id-ID');
-                    changeAmountDisplay.classList.remove('text-emerald-700');
+                    changeAmountDisplay.classList.remove('text-emerald-700', 'text-amber-600');
                     changeAmountDisplay.classList.add('text-red-600');
                     submitOrderBtn.disabled = true;
                 } else {
-                    changeAmountDisplay.classList.remove('text-red-600');
+                    changeAmountDisplay.textContent = `Rp ${change.toLocaleString('id-ID')}`;
+                    changeAmountDisplay.classList.remove('text-red-600', 'text-amber-600');
                     changeAmountDisplay.classList.add('text-emerald-700');
                     submitOrderBtn.disabled = cart.length === 0;
                 }
             } else {
                 changeAmountDisplay.textContent = 'Rp 0 (Non-Tunai)';
-                changeAmountDisplay.classList.remove('text-red-600');
+                changeAmountDisplay.classList.remove('text-red-600', 'text-amber-600');
                 changeAmountDisplay.classList.add('text-emerald-700');
                 submitOrderBtn.disabled = cart.length === 0;
             }
         }
-
-        amountPaidInput.addEventListener('input', updatePaymentCalculations);
 
         // Quick cash buttons
         document.querySelectorAll('.quick-cash-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const subtotal = cart.reduce((sum, i) => sum + (i.itemPrice * i.quantity), 0);
                 if (btn.dataset.type === 'exact') {
-                    amountPaidInput.value = subtotal;
+                    setAmountPaid(subtotal);
                 } else {
                     const addVal = parseFloat(btn.dataset.value);
-                    amountPaidInput.value = addVal;
+                    setAmountPaid(addVal);
                 }
-                updatePaymentCalculations();
             });
         });
 
@@ -520,7 +566,7 @@
             radio.addEventListener('change', () => {
                 const subtotal = cart.reduce((sum, i) => sum + (i.itemPrice * i.quantity), 0);
                 if (radio.value !== 'cash') {
-                    amountPaidInput.value = subtotal;
+                    setAmountPaid(subtotal);
                 }
                 updatePaymentCalculations();
             });

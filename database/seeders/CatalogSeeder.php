@@ -18,38 +18,163 @@ class CatalogSeeder extends Seeder
     public function run(): void
     {
         // 1. Categories
-        $catDagingUtuh = Category::firstOrCreate(
-            ['slug' => 'daging-utuh'],
+        $catDagingSapi = Category::updateOrCreate(
+            ['slug' => 'daging-sapi'],
             [
-                'name' => 'Daging Utuh',
-                'description' => 'Potongan daging sapi utuh berkualitas untuk masakan rendang, semur, dendeng, dan gulai.',
+                'name' => 'Daging Sapi',
+                'description' => 'Aneka potongan daging sapi segar pilihan berkualitas untuk rendang, semur, empal, dendeng, dan masakan keluarga.',
                 'sort_order' => 1,
                 'is_active' => true,
             ]
         );
 
-        $catPotonganKhusus = Category::firstOrCreate(
-            ['slug' => 'potongan-khusus'],
+        $catAyam = Category::updateOrCreate(
+            ['slug' => 'daging-ayam-unggas'],
             [
-                'name' => 'Potongan Khusus',
-                'description' => 'Potongan daging sapi premium pilihan seperti tenderloin, sirloin, ribeye, dan saikoro.',
+                'name' => 'Daging Ayam & Unggas',
+                'description' => 'Daging ayam segar higienis, fillet dada, paha utuh, sayap, dan karkas utuh untuk kebutuhan harian & kuliner.',
                 'sort_order' => 2,
                 'is_active' => true,
             ]
         );
 
-        $catTulang = Category::firstOrCreate(
-            ['slug' => 'tulang'],
+        $catKambing = Category::updateOrCreate(
+            ['slug' => 'daging-kambing-domba'],
             [
-                'name' => 'Tulang',
-                'description' => 'Tulang sapi segar pilihan untuk kaldu gurih, sup iga konro, coto, dan masakan berkuah.',
+                'name' => 'Daging Kambing & Domba',
+                'description' => 'Daging kambing muda segar dan empuk untuk sate, tongseng, gulai rempah, sup, dan kari lezat.',
                 'sort_order' => 3,
                 'is_active' => true,
             ]
         );
 
-        // 2. Demo Products
+        $catPotonganKhusus = Category::updateOrCreate(
+            ['slug' => 'potongan-khusus'],
+            [
+                'name' => 'Potongan Khusus & Olahan',
+                'description' => 'Potongan daging premium seperti tenderloin, sirloin, slice shabu/sukiyaki, dan daging giling higienis.',
+                'sort_order' => 4,
+                'is_active' => true,
+            ]
+        );
+
+        $catTulang = Category::updateOrCreate(
+            ['slug' => 'tulang'],
+            [
+                'name' => 'Tulang & Sup Gurih',
+                'description' => 'Tulang sapi segar pilihan, iga konro, dan sumsum gurih untuk kaldu lezat dan aneka masakan berkuah.',
+                'sort_order' => 5,
+                'is_active' => true,
+            ]
+        );
+
+        // Migrate any legacy 'daging-utuh' products to 'daging-sapi'
+        $legacyCategory = Category::where('slug', 'daging-utuh')->first();
+        if ($legacyCategory && $legacyCategory->id !== $catDagingSapi->id) {
+            Product::where('category_id', $legacyCategory->id)->update(['category_id' => $catDagingSapi->id]);
+            $legacyCategory->delete();
+        }
+
+        // 2. Demo Products (Beef, Chicken, Goat, Special Cuts, Bones)
         $productsData = [
+            // Daging Sapi
+            [
+                'category_id' => $catDagingSapi->id,
+                'sku' => 'DM-RND01',
+                'name' => 'Daging Sapi Rendang & Semur (Gandik)',
+                'slug' => 'daging-sapi-rendang-semur-gandik',
+                'description' => 'Daging sapi padat bertekstur serat halus. Sangat tahan dimasak lama untuk rendang, empal, dendeng, dan semur daging.',
+                'price_per_kg' => 140000.00,
+                'stock_gram' => 30000,
+                'low_stock_threshold_gram' => 5000,
+                'is_active' => true,
+                'is_featured' => true,
+                'weights' => [250, 500, 1000, 2000],
+            ],
+            [
+                'category_id' => $catDagingSapi->id,
+                'sku' => 'DM-BRS01',
+                'name' => 'Daging Sapi Sandung Lamur (Brisket)',
+                'slug' => 'daging-sapi-sandung-lamur-brisket',
+                'description' => 'Bagian dada dengan lapisan lemak gurih lembut. Cocok untuk soto daging, rawon gurih, dan olahan berkuah kaya rasa.',
+                'price_per_kg' => 135000.00,
+                'stock_gram' => 18000,
+                'low_stock_threshold_gram' => 3000,
+                'is_active' => true,
+                'is_featured' => false,
+                'weights' => [250, 500, 1000],
+            ],
+
+            // Daging Ayam & Unggas
+            [
+                'category_id' => $catAyam->id,
+                'sku' => 'DM-AYM01',
+                'name' => 'Fillet Dada Ayam Segar (Boneless Breast)',
+                'slug' => 'fillet-dada-ayam-segar-boneless',
+                'description' => 'Dada ayam tanpa tulang dan tanpa kulit, dipotong higienis setiap hari. Sangat cocok untuk olahan sehat, gym diet, chicken steak, dan katsu.',
+                'price_per_kg' => 55000.00,
+                'stock_gram' => 40000,
+                'low_stock_threshold_gram' => 5000,
+                'is_active' => true,
+                'is_featured' => true,
+                'weights' => [250, 500, 1000, 2000],
+            ],
+            [
+                'category_id' => $catAyam->id,
+                'sku' => 'DM-AYM02',
+                'name' => 'Paha Ayam Utuh Segar (Thigh & Drumstick)',
+                'slug' => 'paha-ayam-utuh-segar',
+                'description' => 'Potongan paha ayam utuh juicy berlemak gurih. Pilihan utama untuk ayam bakar madu, ayam goreng kremes, rica-rica, dan opor.',
+                'price_per_kg' => 48000.00,
+                'stock_gram' => 35000,
+                'low_stock_threshold_gram' => 5000,
+                'is_active' => true,
+                'is_featured' => false,
+                'weights' => [500, 1000, 2000],
+            ],
+            [
+                'category_id' => $catAyam->id,
+                'sku' => 'DM-AYM03',
+                'name' => 'Ayam Karkas Utuh Segar (Whole Chicken)',
+                'slug' => 'ayam-karkas-utuh-segar',
+                'description' => 'Ayam potong utuh bersih tanpa jeroan, higienis, segar, dan bersertifikasi halal. Sangat pas untuk ayam panggang utuh, sup ayam kampung, atau hidangan kenduri.',
+                'price_per_kg' => 42000.00,
+                'stock_gram' => 25000,
+                'low_stock_threshold_gram' => 4000,
+                'is_active' => true,
+                'is_featured' => false,
+                'weights' => [1000, 2000],
+            ],
+
+            // Daging Kambing & Domba
+            [
+                'category_id' => $catKambing->id,
+                'sku' => 'DM-KMB01',
+                'name' => 'Daging Paha Kambing Muda Segar',
+                'slug' => 'daging-paha-kambing-muda-segar',
+                'description' => 'Potongan paha belakang kambing muda pilihan dengan tekstur empuk dan minim bau prengus. Ideal untuk sate kambing empuk, kambing guling, dan krengsengan.',
+                'price_per_kg' => 165000.00,
+                'stock_gram' => 20000,
+                'low_stock_threshold_gram' => 3000,
+                'is_active' => true,
+                'is_featured' => true,
+                'weights' => [250, 500, 1000],
+            ],
+            [
+                'category_id' => $catKambing->id,
+                'sku' => 'DM-KMB02',
+                'name' => 'Daging Kambing Gulai & Tongseng',
+                'slug' => 'daging-kambing-gulai-tongseng',
+                'description' => 'Potongan daging kambing campur sedikit lemak gurih beraroma mantap. Paling pas dimasak tongseng kuah kental, gulai rempah, kari, dan sop kambing.',
+                'price_per_kg' => 145000.00,
+                'stock_gram' => 22000,
+                'low_stock_threshold_gram' => 3500,
+                'is_active' => true,
+                'is_featured' => false,
+                'weights' => [500, 1000],
+            ],
+
+            // Potongan Khusus & Olahan
             [
                 'category_id' => $catPotonganKhusus->id,
                 'sku' => 'DM-TND01',
@@ -77,31 +202,33 @@ class CatalogSeeder extends Seeder
                 'weights' => [250, 500, 1000],
             ],
             [
-                'category_id' => $catDagingUtuh->id,
-                'sku' => 'DM-RND01',
-                'name' => 'Daging Sapi Rendang & Semur (Gandik)',
-                'slug' => 'daging-sapi-rendang-semur-gandik',
-                'description' => 'Daging sapi padat bertekstur serat halus. Sangat tahan dimasak lama untuk rendang, empal, dendeng, dan semur daging.',
-                'price_per_kg' => 140000.00,
-                'stock_gram' => 30000,
-                'low_stock_threshold_gram' => 5000,
+                'category_id' => $catPotonganKhusus->id,
+                'sku' => 'DM-SLI01',
+                'name' => 'Daging Sapi Iris Tipis (Shortplate Shabu / Sukiyaki)',
+                'slug' => 'daging-sapi-iris-tipis-shortplate-shabu',
+                'description' => 'Irisan daging sapi tipis (slice 1.5mm - 2mm) dengan gurih marbling seimbang. Cepat matang, sangat nikmat untuk shabu-shabu, sukiyaki, yakiniku, dan beef bowl.',
+                'price_per_kg' => 150000.00,
+                'stock_gram' => 25000,
+                'low_stock_threshold_gram' => 4000,
                 'is_active' => true,
                 'is_featured' => true,
-                'weights' => [250, 500, 1000, 2000],
+                'weights' => [250, 500, 1000],
             ],
             [
-                'category_id' => $catDagingUtuh->id,
-                'sku' => 'DM-BRS01',
-                'name' => 'Daging Sapi Sandung Lamur (Brisket)',
-                'slug' => 'daging-sapi-sandung-lamur-brisket',
-                'description' => 'Bagian dada dengan lapisan lemak gurih lembut. Cocok untuk soto daging, rawon gurih, dan olahan berkuah kaya rasa.',
+                'category_id' => $catPotonganKhusus->id,
+                'sku' => 'DM-GLG01',
+                'name' => 'Daging Sapi Giling Spesial (Minced Beef)',
+                'slug' => 'daging-sapi-giling-spesial-minced-beef',
+                'description' => 'Daging sapi segar digiling halus dengan rasio 85% daging dan 15% lemak untuk tekstur empuk maksimal. Cocok untuk bakso, patty burger, bolognese, dan pastel.',
                 'price_per_kg' => 135000.00,
-                'stock_gram' => 18000,
+                'stock_gram' => 20000,
                 'low_stock_threshold_gram' => 3000,
                 'is_active' => true,
                 'is_featured' => false,
                 'weights' => [250, 500, 1000],
             ],
+
+            // Tulang & Sup Gurih
             [
                 'category_id' => $catTulang->id,
                 'sku' => 'DM-KNR01',
@@ -134,7 +261,7 @@ class CatalogSeeder extends Seeder
             $weights = $data['weights'];
             unset($data['weights']);
 
-            $product = Product::firstOrCreate(
+            $product = Product::updateOrCreate(
                 ['sku' => $data['sku']],
                 $data
             );

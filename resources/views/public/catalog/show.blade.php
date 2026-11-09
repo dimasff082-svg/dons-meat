@@ -34,7 +34,7 @@
                 @else
                     <div class="w-full h-full flex flex-col items-center justify-center text-slate-300 bg-gradient-to-br from-slate-100 to-slate-200">
                         <span class="text-6xl mb-2">🥩</span>
-                        <span class="text-sm font-semibold text-slate-400">DONS MEAT Fresh Beef</span>
+                        <span class="text-sm font-semibold text-slate-400">DONS MEAT Fresh Meat</span>
                     </div>
                 @endif
 

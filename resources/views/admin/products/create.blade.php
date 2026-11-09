@@ -60,7 +60,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200">
                 <div>
                     <label for="price_per_kg" class="block text-sm font-semibold text-slate-700 mb-1">Harga per Kilogram (Rp)</label>
-                    <input type="number" name="price_per_kg" id="price_per_kg" required min="0" step="500" value="{{ old('price_per_kg') }}"
+                    <input type="number" name="price_per_kg" id="price_per_kg" required min="0" step="any" value="{{ old('price_per_kg') }}"
                            placeholder="150000"
                            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-red-600 focus:border-red-600 font-bold">
                     <span class="text-[11px] text-slate-400 mt-1 block">Harga dasar untuk 1.000 g</span>

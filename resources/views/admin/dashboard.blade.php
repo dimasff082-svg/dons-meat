@@ -37,11 +37,11 @@
                 </span>
                 <h2 class="text-xl md:text-2xl font-extrabold tracking-tight">{{ $setting->business_name }}</h2>
                 <p class="text-xs md:text-sm text-red-200/80 mt-1 max-w-xl">
-                    {{ $setting->business_description ?? 'Sistem Informasi Penjualan Daging Sapi Segar & Berkualitas' }}
+                    {{ $setting->business_description ?? 'Sistem Informasi Penjualan Aneka Daging Segar & Berkualitas' }}
                 </p>
             </div>
             <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/10 text-right md:min-w-[220px]">
-                <p class="text-xs uppercase tracking-wider text-red-200 font-semibold">Harga Standar Sapi/kg</p>
+                <p class="text-xs uppercase tracking-wider text-red-200 font-semibold">Harga Acuan Daging/kg</p>
                 <p class="text-2xl md:text-3xl font-extrabold text-amber-300 mt-1 font-mono">
                     Rp {{ number_format($setting->standard_beef_price_per_kg, 0, ',', '.') }}
                 </p>
@@ -65,7 +65,7 @@
             </div>
             <div class="mt-2">
                 <div class="text-2xl font-bold text-slate-900 font-mono">{{ $totalProducts }}</div>
-                <p class="text-[11px] text-slate-400 mt-1">Daging utuh & potongan</p>
+                <p class="text-[11px] text-slate-400 mt-1">Aneka daging & potongan</p>
             </div>
         </div>
 

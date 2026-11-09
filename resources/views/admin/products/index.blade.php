@@ -7,7 +7,7 @@
 <div class="space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Daftar Produk Daging Sapi</h2>
+            <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Daftar Produk Aneka Daging</h2>
             <p class="text-xs sm:text-sm text-slate-500 mt-1">
                 Kelola produk, harga per kg, stok gram, batas minimum stok, dan pilihan berat.
             </p>

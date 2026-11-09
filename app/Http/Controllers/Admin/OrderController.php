@@ -12,6 +12,7 @@ use App\Models\Order;
 use App\Models\OrderStatusHistory;
 use App\Models\Product;
 use App\Models\StockMovement;
+use App\Models\StoreSetting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -115,6 +116,23 @@ class OrderController extends Controller
         ]);
 
         return view('admin.orders.show', compact('order'));
+    }
+
+    /**
+     * Print receipt and delivery shipping label for courier and product packaging.
+     */
+    public function printLabel(Order $order): View
+    {
+        $order->load([
+            'items.product',
+            'payment',
+            'deliveryZone',
+            'createdByUser',
+        ]);
+
+        $storeSetting = StoreSetting::current();
+
+        return view('admin.orders.print', compact('order', 'storeSetting'));
     }
 
     /**

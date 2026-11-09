@@ -13,7 +13,7 @@
     </div>
 
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
-        <form method="POST" action="{{ route('admin.settings.update') }}" class="space-y-6">
+        <form method="POST" action="{{ route('admin.settings.update') }}" enctype="multipart/form-data" class="space-y-6">
             @csrf
             @method('PUT')
 
@@ -28,7 +28,7 @@
                     </span>
                 </div>
                 <label for="standard_beef_price_per_kg" class="block text-sm font-bold text-white">
-                    Harga Standar Daging Sapi per Kilogram (Rp / kg)
+                    Harga Acuan Standar Daging per Kilogram (Rp / kg)
                 </label>
                 <div class="relative">
                     <span class="absolute left-4 top-3 text-red-300 font-bold text-sm">Rp</span>
@@ -37,7 +37,7 @@
                            id="standard_beef_price_per_kg" 
                            required 
                            min="0" 
-                           step="1000"
+                           step="any"
                            value="{{ old('standard_beef_price_per_kg', $setting->standard_beef_price_per_kg) }}"
                            class="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-amber-300 font-black text-xl sm:text-2xl focus:outline-none focus:ring-2 focus:ring-amber-400">
                 </div>
@@ -49,6 +49,42 @@
             <!-- Business Information -->
             <div class="space-y-4 pt-2">
                 <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Identitas Usaha</h3>
+
+                <!-- Logo Toko -->
+                <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/70 space-y-3">
+                    <label class="block text-sm font-semibold text-slate-800">Logo Toko (Sistem)</label>
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <!-- Current Logo Preview -->
+                        <div class="w-20 h-20 rounded-2xl border-2 border-dashed border-slate-300 bg-white flex items-center justify-center overflow-hidden flex-shrink-0 shadow-xs relative">
+                            @if($setting->logo_path)
+                                <img id="logoPreviewImg" src="{{ asset('storage/' . $setting->logo_path) }}" alt="Logo Toko" class="w-full h-full object-contain p-1">
+                            @else
+                                <div id="logoDefaultPlaceholder" class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-700 to-red-900 text-white flex items-center justify-center font-extrabold text-2xl shadow-sm">
+                                    D
+                                </div>
+                                <img id="logoPreviewImg" src="" alt="Logo Preview" class="w-full h-full object-contain p-1 hidden">
+                            @endif
+                        </div>
+
+                        <!-- Upload Control -->
+                        <div class="flex-1 space-y-2">
+                            <input type="file" 
+                                   name="logo" 
+                                   id="logoInput" 
+                                   accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                                   class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer">
+                            <p class="text-[11px] text-slate-500">
+                                Format: PNG, JPG, WEBP, atau SVG (Maks. 2MB). Ditampilkan di header, nota, dan faktur.
+                            </p>
+                            @if($setting->logo_path)
+                                <label class="inline-flex items-center text-xs text-rose-600 hover:text-rose-700 cursor-pointer font-medium mt-1">
+                                    <input type="checkbox" name="remove_logo" value="1" class="rounded border-slate-300 text-rose-600 focus:ring-rose-500 mr-1.5">
+                                    Hapus logo custom & kembali ke logo default (D)
+                                </label>
+                            @endif
+                        </div>
+                    </div>
+                </div>
 
                 <div>
                     <label for="business_name" class="block text-sm font-semibold text-slate-700 mb-1">Nama Usaha</label>
@@ -120,4 +156,25 @@
         </form>
     </div>
 </div>
+
+<script>
+    document.getElementById('logoInput')?.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = document.getElementById('logoPreviewImg');
+                const placeholder = document.getElementById('logoDefaultPlaceholder');
+                if (img) {
+                    img.src = event.target.result;
+                    img.classList.remove('hidden');
+                }
+                if (placeholder) {
+                    placeholder.classList.add('hidden');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
 @endsection
