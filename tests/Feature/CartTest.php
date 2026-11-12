@@ -18,6 +18,8 @@ class CartTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Keranjang Belanja Anda Kosong');
+        $response->assertSee('id="cartCountBadge"', false);
+        $response->assertSee('>0<', false);
     }
 
     public function test_user_can_add_product_to_cart(): void
@@ -52,6 +54,14 @@ class CartTest extends TestCase
         $cartResponse->assertSee('500 gram');
         // 2 x 500g = 1,000g; price = (135,000 * 500 / 1000) * 2 = Rp 135,000
         $cartResponse->assertSee('135.000');
+        $cartResponse->assertSee('id="cartCountBadge"', false);
+        $cartResponse->assertSee('>2<', false);
+
+        // Also ensure public catalog navbar badge reflects the count (2)
+        $catalogResponse = $this->get('/katalog');
+        $catalogResponse->assertStatus(200);
+        $catalogResponse->assertSee('id="cartCountBadge"', false);
+        $catalogResponse->assertSee('>2<', false);
     }
 
     public function test_user_can_update_quantity_in_cart(): void

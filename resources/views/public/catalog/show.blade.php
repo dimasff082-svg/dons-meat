@@ -104,13 +104,19 @@
                         Belum ada opsi berat yang diaktifkan untuk produk ini.
                     </p>
                 @else
+                    @php
+                        $firstAvailableOption = $product->activeWeightOptions->first(fn($opt) => $product->available_stock_gram >= $opt->weight_gram) ?? $product->activeWeightOptions->first();
+                        $initialPrice = $firstAvailableOption ? round(($product->price_per_kg * $firstAvailableOption->weight_gram) / 1000) : 0;
+                    @endphp
+
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="weightOptionsGrid">
                         @foreach($product->activeWeightOptions as $index => $option)
                             @php
                                 $packagePrice = round(($product->price_per_kg * $option->weight_gram) / 1000);
                                 $isAvailable = $product->available_stock_gram >= $option->weight_gram;
+                                $isSelected = $firstAvailableOption && $option->id === $firstAvailableOption->id;
                             @endphp
-                            <label class="relative flex flex-col p-3 rounded-xl border text-center cursor-pointer transition select-none {{ $isAvailable ? 'border-slate-200 hover:border-red-600 bg-slate-50/50' : 'border-slate-100 bg-slate-100/60 opacity-60 cursor-not-allowed' }}">
+                            <label class="relative flex flex-col p-3 rounded-xl border text-center cursor-pointer transition select-none {{ $isAvailable ? 'border-slate-200 bg-white hover:border-red-400 has-[:checked]:border-red-600 has-[:checked]:ring-2 has-[:checked]:ring-red-600 has-[:checked]:bg-red-50/40' : 'border-slate-100 bg-slate-100/60 opacity-60 cursor-not-allowed' }}">
                                 <input type="radio" 
                                        name="weight_option_id" 
                                        value="{{ $option->id }}"
@@ -118,12 +124,12 @@
                                        data-label="{{ $option->label }}"
                                        data-price="{{ $packagePrice }}"
                                        data-available="{{ $isAvailable ? '1' : '0' }}"
-                                       {{ $isAvailable && $loop->first ? 'checked' : '' }}
+                                       {{ $isSelected ? 'checked' : '' }}
                                        {{ ! $isAvailable ? 'disabled' : '' }}
                                        onchange="updateSubtotal()"
-                                       class="sr-only peer">
+                                       class="sr-only">
                                 
-                                <span class="font-extrabold text-sm text-slate-900 peer-checked:text-red-700">
+                                <span class="font-extrabold text-sm text-slate-900 group-hover:text-red-700">
                                     {{ $option->label }}
                                 </span>
                                 
@@ -134,9 +140,6 @@
                                 @if(! $isAvailable)
                                     <span class="mt-1 text-[10px] text-rose-600 font-semibold">Stok kurang</span>
                                 @endif
-
-                                <!-- Highlight ring when checked -->
-                                <span class="absolute inset-0 rounded-xl border-2 border-transparent peer-checked:border-red-700 pointer-events-none"></span>
                             </label>
                         @endforeach
                     </div>
@@ -145,10 +148,12 @@
                     <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div class="flex items-center space-x-3 w-full sm:w-auto">
                             <span class="text-xs font-semibold text-slate-600">Jumlah:</span>
-                            <div class="flex items-center border border-slate-300 rounded-xl overflow-hidden bg-slate-50">
+                            <div class="flex items-center border border-slate-300 rounded-xl overflow-hidden bg-slate-50 shadow-xs">
                                 <button type="button" 
+                                        id="btnDecreaseQty"
                                         onclick="adjustQty(-1)" 
-                                        class="px-3 py-1.5 text-slate-600 hover:bg-slate-200 font-bold text-sm">
+                                        aria-label="Kurangi jumlah"
+                                        class="w-9 h-9 flex items-center justify-center text-slate-700 hover:bg-slate-200 active:bg-slate-300 font-bold text-base transition select-none cursor-pointer">
                                     -
                                 </button>
                                 <input type="number" 
@@ -157,11 +162,14 @@
                                        value="1" 
                                        min="1" 
                                        max="50" 
+                                       oninput="updateSubtotal()"
                                        onchange="updateSubtotal()"
-                                       class="w-12 text-center text-sm font-bold bg-transparent border-none focus:outline-none">
+                                       class="w-12 text-center text-sm font-bold bg-white border-y-0 border-x border-slate-200 focus:outline-none focus:ring-0 py-1.5 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
                                 <button type="button" 
+                                        id="btnIncreaseQty"
                                         onclick="adjustQty(1)" 
-                                        class="px-3 py-1.5 text-slate-600 hover:bg-slate-200 font-bold text-sm">
+                                        aria-label="Tambah jumlah"
+                                        class="w-9 h-9 flex items-center justify-center text-slate-700 hover:bg-slate-200 active:bg-slate-300 font-bold text-base transition select-none cursor-pointer">
                                     +
                                 </button>
                             </div>
@@ -170,7 +178,7 @@
                         <div class="text-right w-full sm:w-auto">
                             <span class="text-xs text-slate-400 font-medium block">Total Pembelian</span>
                             <span id="calculatedSubtotal" class="text-xl sm:text-2xl font-extrabold text-red-800">
-                                Rp 0
+                                Rp {{ number_format($initialPrice, 0, ',', '.') }}
                             </span>
                         </div>
                     </div>
@@ -182,7 +190,7 @@
                                     id="addToCartBtn"
                                     class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-red-700 to-red-800 hover:from-red-800 hover:to-red-900 text-white font-extrabold text-sm sm:text-base shadow-md transition flex items-center justify-center space-x-2">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
                                 </svg>
                                 <span>Tambah ke Keranjang</span>
                             </button>
@@ -240,23 +248,40 @@
 <!-- Client-side weight & subtotal script -->
 <script>
     function updateSubtotal() {
-        const checkedRadio = document.querySelector('input[name="weight_option_id"]:checked');
+        let checkedRadio = document.querySelector('input[name="weight_option_id"]:checked');
         const qtyInput = document.getElementById('itemQty');
         const subtotalEl = document.getElementById('calculatedSubtotal');
         
-        if (!checkedRadio || !subtotalEl) return;
+        if (!qtyInput || !subtotalEl) return;
 
-        const packagePrice = parseFloat(checkedRadio.dataset.price) || 0;
+        // Auto-fallback: if no option is checked, select first available non-disabled option
+        if (!checkedRadio) {
+            const firstAvailable = document.querySelector('input[name="weight_option_id"]:not(:disabled)');
+            if (firstAvailable) {
+                firstAvailable.checked = true;
+                checkedRadio = firstAvailable;
+            }
+        }
+
         let qty = parseInt(qtyInput.value) || 1;
         if (qty < 1) qty = 1;
+        if (qty > 50) qty = 50;
         qtyInput.value = qty;
 
+        if (!checkedRadio) {
+            subtotalEl.innerText = 'Rp 0';
+            return;
+        }
+
+        const packagePrice = parseFloat(checkedRadio.dataset.price) || 0;
         const total = packagePrice * qty;
         subtotalEl.innerText = 'Rp ' + total.toLocaleString('id-ID');
     }
 
     function adjustQty(delta) {
         const qtyInput = document.getElementById('itemQty');
+        if (!qtyInput) return;
+
         let val = parseInt(qtyInput.value) || 1;
         val += delta;
         if (val < 1) val = 1;
@@ -265,24 +290,33 @@
         updateSubtotal();
     }
 
-    function handleAddToCart() {
-        const checkedRadio = document.querySelector('input[name="weight_option_id"]:checked');
-        if (!checkedRadio) {
-            alert('Silakan pilih salah satu opsi berat.');
-            return;
+    // Expose functions globally to window
+    window.updateSubtotal = updateSubtotal;
+    window.adjustQty = adjustQty;
+
+    function initProductDetailControls() {
+        const qtyInput = document.getElementById('itemQty');
+
+        if (qtyInput && !qtyInput.dataset.ready) {
+            qtyInput.addEventListener('input', updateSubtotal);
+            qtyInput.addEventListener('change', updateSubtotal);
+            qtyInput.dataset.ready = 'true';
         }
 
-        const qty = parseInt(document.getElementById('itemQty').value) || 1;
-        const optionId = checkedRadio.value;
-        const weightLabel = checkedRadio.dataset.label;
-        const packagePrice = parseFloat(checkedRadio.dataset.price) || 0;
+        document.querySelectorAll('input[name="weight_option_id"]').forEach(function(radio) {
+            if (!radio.dataset.ready) {
+                radio.addEventListener('change', updateSubtotal);
+                radio.dataset.ready = 'true';
+            }
+        });
 
-        // In Tahap 2, notify user that item is selected; full cart storage & guest checkout will be hooked in Tahap 4
-        alert('Produk ' + {{ json_encode($product->name) }} + ' (' + weightLabel + ' x ' + qty + ') telah dipilih!');
+        updateSubtotal();
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        updateSubtotal();
-    });
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initProductDetailControls);
+    } else {
+        initProductDetailControls();
+    }
 </script>
 @endsection

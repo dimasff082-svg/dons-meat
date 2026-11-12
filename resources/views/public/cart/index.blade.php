@@ -35,7 +35,7 @@
             <div class="bg-white rounded-2xl border border-slate-200 p-8 sm:p-16 text-center max-w-2xl mx-auto shadow-sm">
                 <div class="w-20 h-20 mx-auto rounded-full bg-red-50 text-red-600 flex items-center justify-center mb-4">
                     <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
                     </svg>
                 </div>
                 <h2 class="text-xl font-bold text-slate-900">Keranjang Belanja Anda Kosong</h2>

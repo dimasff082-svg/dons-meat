@@ -117,6 +117,11 @@ class PublicCatalogTest extends TestCase
         $response->assertSee('DM-GND01');
         $response->assertSee('140.000');
         $response->assertSee('500 g');
+        $response->assertSee('id="btnDecreaseQty"', false);
+        $response->assertSee('id="btnIncreaseQty"', false);
+        $response->assertSee('id="itemQty"', false);
+        $response->assertSee('id="calculatedSubtotal"', false);
+        $response->assertSee('70.000');
     }
 
     public function test_store_profile_page_displays_business_information(): void

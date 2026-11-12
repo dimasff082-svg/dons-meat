@@ -19,8 +19,8 @@
     
     <!-- Top Announcement Bar (Standard Beef Price) -->
     @php
-        $globalSetting = \App\Models\StoreSetting::current();
-        $cartCount = count(session('cart', []));
+        $globalSetting = $storeSetting ?? \App\Models\StoreSetting::current();
+        $cartCount = $cartCount ?? app(\App\Services\CartService::class)->getCount();
     @endphp
     <div class="bg-red-950 text-red-100 text-xs py-2 px-4 border-b border-red-900/60">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-1 sm:gap-4 text-center sm:text-left">
@@ -77,16 +77,13 @@
                 <!-- Cart Button -->
                 <a href="{{ route('cart.index') }}" 
                    id="cartNavButton"
-                   class="relative inline-flex items-center px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-sm font-semibold border border-slate-200/80 transition">
-                    <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                   class="relative inline-flex items-center px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-sm font-semibold border border-slate-200/80 transition group">
+                    <svg class="w-5 h-5 text-slate-700 group-hover:text-red-700 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
                     </svg>
                     <span class="hidden sm:inline-block ml-2">Keranjang</span>
-                    @if(($cartCount ?? 0) > 0)
-                        <span class="ml-1.5 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-700 rounded-full">
-                            {{ $cartCount }}
-                        </span>
-                    @endif
+                    <span id="cartCountBadge" 
+                          class="ml-1.5 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold leading-none rounded-full transition {{ ($cartCount ?? 0) > 0 ? 'bg-red-700 text-white shadow-xs' : 'bg-slate-200 text-slate-600' }}">{{ $cartCount ?? 0 }}</span>
                 </a>
 
                 <!-- Internal Login Link -->
